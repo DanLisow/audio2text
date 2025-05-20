@@ -1,0 +1,6 @@
+noisereduce
+librosa
+soundfile
+faster_whisper
+pyannote.audio
+pika

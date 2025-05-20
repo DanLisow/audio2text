@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  api:
+    build:
+      context: ./server
+    container_name: audio2text-api
+    env_file:
+      - ./server/.env
+    environment:
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+    depends_on:
+      - rabbitmq
+    ports:
+      - "4000:3000"
+
+  worker:
+    build:
+      context: ./worker
+    container_name: audio2text-worker
+    env_file:
+      - ./worker/.env
+    environment:
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      MEDIA_SERVICE_URL_SAVE_TRANSCRIPTION: http://api:3000/save
+    depends_on:
+      - rabbitmq
